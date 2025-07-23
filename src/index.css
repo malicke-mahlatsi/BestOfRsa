@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  body {
+    @apply bg-[#0c1824] text-white;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', serif;
+  }
+}
+
+@layer utilities {
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
+  
+  .font-montserrat {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  /* Japanese Bento Box Design System */
+  .bento-container {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 1rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+  }
+  
+  .bento-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .bento-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(212, 175, 55, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(212, 175, 55, 0.1);
+  }
+  
+  /* iOS-inspired Spacing System */
+  .ios-spacing-xs { padding: 0.5rem; }
+  .ios-spacing-sm { padding: 0.75rem; }
+  .ios-spacing-md { padding: 1rem; }
+  .ios-spacing-lg { padding: 1.5rem; }
+  .ios-spacing-xl { padding: 2rem; }
+  .ios-spacing-2xl { padding: 3rem; }
+  
+  .ios-gap-xs { gap: 0.5rem; }
+  .ios-gap-sm { gap: 0.75rem; }
+  .ios-gap-md { gap: 1rem; }
+  .ios-gap-lg { gap: 1.5rem; }
+  .ios-gap-xl { gap: 2rem; }
+  
+  /* Premium Glass Morphism */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .glass-nav {
+    background: rgba(12, 24, 36, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  }
+  
+  /* Enhanced visibility utilities */
+  .text-high-contrast {
+    color: #1a1a1a !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  .text-dark-contrast {
+    color: #1a1a1a !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  }
+  
+  .text-readable-light {
+    color: #374151 !important;
+  }
+  
+  .text-readable-dark {
+    color: #f9fafb !important;
+  }
+  
+  .bg-readable-light {
+    background-color: #f9fafb !important;
+  }
+  
+  .bg-readable-dark {
+    background-color: #1f2937 !important;
+  }
+  
+  .bg-high-contrast {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(4px);
+  }
+  
+  .bg-light-contrast {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(4px);
+  }
+  
+  .border-visible {
+    border: 1px solid rgba(212, 175, 55, 0.5) !important;
+  }
+  
+  /* Custom Scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-track-transparent {
+    scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
+  }
+  
+  .scrollbar-thumb-gold {
+    scrollbar-color: rgba(212, 175, 55, 0.5) transparent;
+  }
+  
+  /* Webkit Scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
+  }
+  
+  @keyframes glow {
+    0%, 100% { 
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+    50% { 
+      text-shadow: 0 0 20px rgba(212, 175, 55, 0.6); 
+    }
+  }
+  
+  @keyframes fadeIn {
+    from { 
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
