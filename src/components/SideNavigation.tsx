@@ -15,7 +15,9 @@ import {
   ChevronRight,
   X,
   Menu,
-  Database
+  Database,
+  BarChart3,
+  TrendingUp
 } from 'lucide-react';
 
 interface SideNavigationProps {
@@ -69,7 +71,11 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       title: 'DATA TOOLS',
       items: [
         { id: 'web-scraping', label: 'WEB SCRAPING', icon: Globe, action: () => onNavigate('web-scraping') },
-        { id: 'data-pipeline', label: 'DATA PIPELINE', icon: Database, action: () => onNavigate('data-pipeline') }
+        { id: 'data-pipeline', label: 'DATA PIPELINE', icon: Database, action: () => onNavigate('data-pipeline') },
+        { id: 'scraping-dashboard', label: 'SCRAPING DASHBOARD', icon: BarChart3, action: () => onNavigate('scraping-dashboard') },
+        { id: 'data-quality', label: 'DATA QUALITY', icon: Star, action: () => onNavigate('data-quality') },
+        { id: 'job-management', label: 'JOB MANAGEMENT', icon: Settings, action: () => onNavigate('job-management') },
+        { id: 'analytics', label: 'ANALYTICS', icon: TrendingUp, action: () => onNavigate('analytics') }
       ]
     },
     {

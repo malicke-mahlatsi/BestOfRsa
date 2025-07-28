@@ -8,6 +8,7 @@ import VenueDetailPage from './components/VenueDetailPage';
 import SideNavigation from './components/SideNavigation';
 import WebScrapingInterface from './components/WebScrapingInterface';
 import DataPipelineInterface from './components/DataPipelineInterface';
+import { ScrapingDashboard, DataQualityMonitor, JobManagement, AnalyticsVisualization } from './components/scraping';
 import { dummyListings } from './data/dummyData';
 import { categories } from './data/categories';
 import { SearchFilters, Listing } from './types';
@@ -27,6 +28,10 @@ function App() {
   const [showDatabasePanel, setShowDatabasePanel] = useState(false);
   const [showOSMCollector, setShowOSMCollector] = useState(false);
   const [showDataPipeline, setShowDataPipeline] = useState(false);
+  const [showScrapingDashboard, setShowScrapingDashboard] = useState(false);
+  const [showDataQuality, setShowDataQuality] = useState(false);
+  const [showJobManagement, setShowJobManagement] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -94,6 +99,18 @@ function App() {
       case 'data-pipeline':
         setShowDataPipeline(true);
         break;
+      case 'scraping-dashboard':
+        setShowScrapingDashboard(true);
+        break;
+      case 'data-quality':
+        setShowDataQuality(true);
+        break;
+      case 'job-management':
+        setShowJobManagement(true);
+        break;
+      case 'analytics':
+        setShowAnalytics(true);
+        break;
       default:
         // Handle other sections like locations, profile, etc.
         break;
@@ -136,6 +153,26 @@ function App() {
   // Show data pipeline interface
   if (showDataPipeline) {
     return <DataPipelineInterface />;
+  }
+
+  // Show scraping dashboard
+  if (showScrapingDashboard) {
+    return <ScrapingDashboard />;
+  }
+
+  // Show data quality monitor
+  if (showDataQuality) {
+    return <DataQualityMonitor />;
+  }
+
+  // Show job management
+  if (showJobManagement) {
+    return <JobManagement />;
+  }
+
+  // Show analytics
+  if (showAnalytics) {
+    return <AnalyticsVisualization />;
   }
 
   return (
