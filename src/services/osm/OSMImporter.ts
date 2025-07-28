@@ -87,14 +87,11 @@ export class OSMImporter {
       email: place.email,
       latitude: place.latitude,
       longitude: place.longitude,
-      category_id: place.category_id,
+      category: place.category,
       description: place.description,
-      features: place.features,
-      amenities: place.amenities,
-      opening_hours: place.opening_hours,
-      price_range: place.price_range,
+      rating: place.rating,
+      photos: place.photos || [],
       source_type: place.source_type,
-      source_url: place.source_url
     }));
 
     // Call the bulk insert function

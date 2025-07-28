@@ -193,7 +193,7 @@ export class OSMDataService {
           source_url: `https://www.openstreetmap.org/node/${node.id}`,
           features: this.extractFeaturesFromTags(tags),
           opening_hours: this.parseOpeningHours(tags.opening_hours),
-          category_id: this.getCategoryId(category),
+          category: this.getCategoryName(category),
           amenities: this.extractAmenities(tags),
           price_range: this.inferPriceRange(tags)
         } as Place;
@@ -317,6 +317,17 @@ export class OSMDataService {
     };
     
     return categoryMap[category] || 0;
+  }
+
+  private getCategoryName(category: string): string {
+    const categoryMap: Record<string, string> = {
+      'restaurants': 'restaurants',
+      'hotels': 'hotels',
+      'attractions': 'attractions',
+      'activities': 'activities'
+    };
+    
+    return categoryMap[category] || 'general';
   }
 
   private extractAmenities(tags: Record<string, string>): Record<string, boolean> {
