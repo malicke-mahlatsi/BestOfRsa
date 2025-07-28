@@ -234,5 +234,3 @@ export abstract class BaseScraper {
   abstract scrape(url: string): Promise<ScraperResult>;
   abstract scrapeList(urls: string[]): Promise<ScraperResult[]>;
 }
-
-export { BaseScraper }
