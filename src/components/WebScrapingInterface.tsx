@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Globe, 
@@ -41,7 +41,6 @@ const WebScrapingInterface: React.FC = () => {
   });
   const [isRunning, setIsRunning] = useState(false);
 
-  React.useEffect(() => {
   useEffect(() => {
     loadQueueJobs();
     
@@ -135,6 +134,10 @@ const WebScrapingInterface: React.FC = () => {
     link.download = `${job.category}-scraping-results-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const runScrapingJob = (jobId: string) => {
+    // Implementation for running scraping job
   };
 
   const getStatusIcon = (status: string) => {
@@ -352,7 +355,7 @@ const WebScrapingInterface: React.FC = () => {
                   )}
                   
                   {/* Results Summary */}
-                  {job.results.length > 0 && (
+                  {job.results && job.results.length > 0 && (
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div className="bg-white/50 p-3 rounded-lg">
                         <div className="text-lg font-bold text-green-600">
