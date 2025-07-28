@@ -14,7 +14,8 @@ import {
   Globe,
   ChevronRight,
   X,
-  Menu
+  Menu,
+  Database
 } from 'lucide-react';
 
 interface SideNavigationProps {
@@ -67,7 +68,8 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       id: 'tools',
       title: 'DATA TOOLS',
       items: [
-        { id: 'web-scraping', label: 'WEB SCRAPING', icon: Globe, action: () => onNavigate('web-scraping') }
+        { id: 'web-scraping', label: 'WEB SCRAPING', icon: Globe, action: () => onNavigate('web-scraping') },
+        { id: 'data-pipeline', label: 'DATA PIPELINE', icon: Database, action: () => onNavigate('data-pipeline') }
       ]
     },
     {
