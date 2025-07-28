@@ -28,7 +28,6 @@ export class ScrapingProcessor {
     const place = {
       name: result.data.name,
       address: result.data.address,
-      phone: result.data.phone,
       website: result.data.website,
       category: this.getCategoryName(category),
       rating: result.data.rating || 0,

@@ -162,9 +162,7 @@ export class OSMDataService {
         address: fullAddress,
         latitude: parseFloat(result.lat),
         longitude: parseFloat(result.lon),
-        phone: result.extratags?.phone,
         website: result.extratags?.website,
-        email: result.extratags?.email,
         source_type: 'osm',
         source_url: `https://www.openstreetmap.org/${result.osm_type}/${result.osm_id}`,
         features: this.extractFeatures(result.extratags || {}),
@@ -186,9 +184,7 @@ export class OSMDataService {
           location: {
             lat: node.lat,
             lng: node.lon
-          },
-            lng: parseFloat(result.lon)
-          source_type: 'osm',
+          }
         } as Place;
       });
   }

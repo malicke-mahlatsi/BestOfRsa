@@ -82,9 +82,7 @@ export class OSMImporter {
     const placesData = places.map(place => ({
       name: place.name,
       address: place.address,
-      phone: place.phone,
       website: place.website,
-      email: place.email,
       location: place.location,
       category: place.category,
       rating: place.rating,
