@@ -10,24 +10,29 @@ import {
   X,
   BarChart3,
   Clock,
-  Target
+  Target,
+  Zap,
+  Database
 } from 'lucide-react';
-import { RestaurantScraper, HotelScraper, AttractionScraper, ActivityScraper } from '../scrapers';
-import { ScraperResult, ScraperConfig } from '../scrapers/types';
+import { queueManager } from '../queue';
+import { ScraperConfig } from '../scrapers/types';
+import { getScrapingJobs } from '../api/places';
+import { ScrapingJob } from '../types/database';
 
-interface ScrapingJob {
+interface WebScrapingJob {
   id: string;
   category: string;
   urls: string[];
   status: 'pending' | 'running' | 'completed' | 'paused' | 'error';
   progress: number;
-  results: ScraperResult[];
+  results: any[];
   startTime?: Date;
   endTime?: Date;
 }
 
 const WebScrapingInterface: React.FC = () => {
-  const [jobs, setJobs] = useState<ScrapingJob[]>([]);
+  const [jobs, setJobs] = useState<WebScrapingJob[]>([]);
+  const [queueJobs, setQueueJobs] = useState<ScrapingJob[]>([]);
   const [newJobUrls, setNewJobUrls] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('restaurants');
   const [scraperConfig, setScraperConfig] = useState<ScraperConfig>({
@@ -37,14 +42,32 @@ const WebScrapingInterface: React.FC = () => {
   });
   const [isRunning, setIsRunning] = useState(false);
 
+  useEffect(() => {
+    loadQueueJobs();
+    
+    // Set up real-time updates
+    const interval = setInterval(loadQueueJobs, 3000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadQueueJobs = async () => {
+    try {
+      const jobs = await getScrapingJobs({ limit: 20 });
+      setQueueJobs(jobs);
+    } catch (error) {
+      console.error('Error loading queue jobs:', error);
+    }
+  };
+
   const categories = [
-    { value: 'restaurants', label: 'Restaurants', scraper: RestaurantScraper },
-    { value: 'hotels', label: 'Hotels', scraper: HotelScraper },
-    { value: 'attractions', label: 'Attractions', scraper: AttractionScraper },
-    { value: 'activities', label: 'Activities', scraper: ActivityScraper }
+    { value: 'restaurant', label: 'Restaurants' },
+    { value: 'hotel', label: 'Hotels' },
+    { value: 'attraction', label: 'Attractions' },
+    { value: 'activity', label: 'Activities' }
   ];
 
-  const createScrapingJob = () => {
+  const createScrapingJob = async () => {
     if (!newJobUrls.trim()) return;
 
     const urls = newJobUrls
@@ -57,7 +80,7 @@ const WebScrapingInterface: React.FC = () => {
       return;
     }
 
-    const newJob: ScrapingJob = {
+    const newJob: WebScrapingJob = {
       id: Date.now().toString(),
       category: selectedCategory,
       urls,
@@ -67,91 +90,42 @@ const WebScrapingInterface: React.FC = () => {
     };
 
     setJobs(prev => [...prev, newJob]);
+    
+    // Add jobs to queue system
+    for (const url of urls) {
+      await queueManager.addJob('scrape', {
+        url,
+        category: selectedCategory,
+        source: 'web_interface'
+      }, { priority: 5 });
+    }
+    
     setNewJobUrls('');
+    loadQueueJobs();
   };
 
-  const runScrapingJob = async (jobId: string) => {
-    const job = jobs.find(j => j.id === jobId);
-    if (!job || job.status === 'running') return;
-
-    setIsRunning(true);
+  const addBulkJob = async (category: string, count: number = 10) => {
+    // Add multiple test jobs to demonstrate queue functionality
+    const testUrls = Array.from({ length: count }, (_, i) => 
+      `https://example.com/${category}/${i + 1}`
+    );
     
-    // Update job status
-    setJobs(prev => prev.map(j => 
-      j.id === jobId 
-        ? { ...j, status: 'running', startTime: new Date(), results: [] }
-        : j
-    ));
-
-    try {
-      const categoryConfig = categories.find(c => c.value === job.category);
-      if (!categoryConfig) throw new Error('Invalid category');
-
-      const scraper = new categoryConfig.scraper(scraperConfig);
-      const results: ScraperResult[] = [];
-
-      // Process URLs one by one with progress updates
-      for (let i = 0; i < job.urls.length; i++) {
-        const url = job.urls[i];
-        
-        try {
-          const result = await scraper.scrape(url);
-          results.push(result);
-          
-          // Update progress
-          const progress = Math.round(((i + 1) / job.urls.length) * 100);
-          setJobs(prev => prev.map(j => 
-            j.id === jobId 
-              ? { ...j, progress, results: [...results] }
-              : j
-          ));
-          
-        } catch (error) {
-          results.push({
-            success: false,
-            error: (error as Error).message,
-            url,
-            timestamp: new Date().toISOString()
-          });
-        }
-
-        // Small delay between requests
-        await new Promise(resolve => setTimeout(resolve, 1000 / scraperConfig.requestsPerSecond!));
-      }
-
-      // Mark job as completed
-      setJobs(prev => prev.map(j => 
-        j.id === jobId 
-          ? { 
-              ...j, 
-              status: 'completed', 
-              progress: 100, 
-              results,
-              endTime: new Date()
-            }
-          : j
-      ));
-
-    } catch (error) {
-      setJobs(prev => prev.map(j => 
-        j.id === jobId 
-          ? { 
-              ...j, 
-              status: 'error', 
-              endTime: new Date()
-            }
-          : j
-      ));
-    } finally {
-      setIsRunning(false);
+    for (const url of testUrls) {
+      await queueManager.addJob('scrape', {
+        url,
+        category,
+        source: 'bulk_test'
+      }, { priority: Math.floor(Math.random() * 10) + 1 });
     }
+    
+    loadQueueJobs();
   };
 
   const deleteJob = (jobId: string) => {
     setJobs(prev => prev.filter(j => j.id !== jobId));
   };
 
-  const downloadResults = (job: ScrapingJob) => {
+  const downloadResults = (job: WebScrapingJob) => {
     const successfulResults = job.results.filter(r => r.success);
     const dataStr = JSON.stringify(successfulResults, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -163,23 +137,23 @@ const WebScrapingInterface: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const getStatusIcon = (status: ScrapingJob['status']) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return <Clock className="w-4 h-4 text-gray-400" />;
-      case 'running': return <Play className="w-4 h-4 text-blue-500" />;
+      case 'processing': return <Play className="w-4 h-4 text-blue-500" />;
       case 'completed': return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'paused': return <Pause className="w-4 h-4 text-yellow-500" />;
-      case 'error': return <AlertTriangle className="w-4 h-4 text-red-500" />;
+      case 'failed': return <AlertTriangle className="w-4 h-4 text-red-500" />;
+      default: return <Clock className="w-4 h-4 text-gray-400" />;
     }
   };
 
-  const getStatusColor = (status: ScrapingJob['status']) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-gray-50 border-gray-200';
-      case 'running': return 'bg-blue-50 border-blue-200';
+      case 'processing': return 'bg-blue-50 border-blue-200';
       case 'completed': return 'bg-green-50 border-green-200';
-      case 'paused': return 'bg-yellow-50 border-yellow-200';
-      case 'error': return 'bg-red-50 border-red-200';
+      case 'failed': return 'bg-red-50 border-red-200';
+      default: return 'bg-gray-50 border-gray-200';
     }
   };
 
@@ -208,79 +182,106 @@ const WebScrapingInterface: React.FC = () => {
           <h2 className="text-2xl font-cinzel text-[#D4AF37] mb-6">Create Scraping Job</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                URLs to Scrape (one per line)
+                Category
               </label>
-              <textarea
-                value={newJobUrls}
-                onChange={(e) => setNewJobUrls(e.target.value)}
-                placeholder="https://example.com/restaurant1&#10;https://example.com/restaurant2&#10;https://example.com/restaurant3"
-                className="w-full h-32 p-4 bg-[#0c1824]/50 border border-[#D4AF37]/30 rounded-lg 
-                          text-white placeholder-gray-400 resize-none focus:ring-2 focus:ring-[#D4AF37] 
-                          focus:border-transparent"
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full p-3 bg-[#0c1824]/50 border border-[#D4AF37]/30 rounded-lg text-white"
+              >
+                {categories.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Requests/Second
+              </label>
+              <input
+                type="number"
+                min="0.5"
+                max="5"
+                step="0.5"
+                value={scraperConfig.requestsPerSecond}
+                onChange={(e) => setScraperConfig(prev => ({
+                  ...prev,
+                  requestsPerSecond: parseFloat(e.target.value)
+                }))}
+                className="w-full p-3 bg-[#0c1824]/50 border border-[#D4AF37]/30 rounded-lg text-white"
               />
             </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-3 bg-[#0c1824]/50 border border-[#D4AF37]/30 rounded-lg text-white"
-                >
-                  {categories.map(cat => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Requests/Second
-                </label>
-                <input
-                  type="number"
-                  min="0.5"
-                  max="5"
-                  step="0.5"
-                  value={scraperConfig.requestsPerSecond}
-                  onChange={(e) => setScraperConfig(prev => ({
-                    ...prev,
-                    requestsPerSecond: parseFloat(e.target.value)
-                  }))}
-                  className="w-full p-3 bg-[#0c1824]/50 border border-[#D4AF37]/30 rounded-lg text-white"
-                />
-              </div>
-              
+            <div className="space-y-2">
               <motion.button
-                onClick={createScrapingJob}
-                disabled={!newJobUrls.trim() || isRunning}
+                onClick={() => addBulkJob(selectedCategory, 5)}
+                disabled={isRunning}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-[#D4AF37] text-[#0c1824] py-3 rounded-lg font-medium 
+                className="w-full bg-[#D4AF37] text-[#0c1824] py-2 rounded-lg font-medium 
                           hover:bg-[#D4AF37]/90 disabled:opacity-50 disabled:cursor-not-allowed 
                           transition-all duration-300 flex items-center justify-center gap-2"
               >
-                <Target className="w-5 h-5" />
-                Create Job
+                <Zap className="w-4 h-4" />
+                Add 5 Test Jobs
+              </motion.button>
+              
+              <motion.button
+                onClick={() => addBulkJob(selectedCategory, 20)}
+                disabled={isRunning}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium 
+                          hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed 
+                          transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <Database className="w-4 h-4" />
+                Add 20 Bulk Jobs
               </motion.button>
             </div>
           </div>
+          
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Custom URLs (one per line)
+            </label>
+            <textarea
+              value={newJobUrls}
+              onChange={(e) => setNewJobUrls(e.target.value)}
+              placeholder="https://example.com/restaurant1&#10;https://example.com/restaurant2&#10;https://example.com/restaurant3"
+              className="w-full h-24 p-4 bg-[#0c1824]/50 border border-[#D4AF37]/30 rounded-lg 
+                        text-white placeholder-gray-400 resize-none focus:ring-2 focus:ring-[#D4AF37] 
+                        focus:border-transparent"
+            />
+            <motion.button
+              onClick={createScrapingJob}
+              disabled={!newJobUrls.trim() || isRunning}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-3 bg-green-600 text-white px-6 py-2 rounded-lg font-medium 
+                        hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed 
+                        transition-all duration-300 flex items-center gap-2"
+            >
+              <Target className="w-4 h-4" />
+              Create Custom Job
+            </motion.button>
+          </div>
         </motion.div>
 
-        {/* Jobs List */}
-        {jobs.length > 0 && (
+        {/* Queue Jobs List */}
+        {queueJobs.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-[#1A2A44]/30 p-6 rounded-xl border border-[#D4AF37]/20"
           >
-            <h2 className="text-2xl font-cinzel text-[#D4AF37] mb-6">Scraping Jobs</h2>
+            <h2 className="text-2xl font-cinzel text-[#D4AF37] mb-6">Queue Jobs</h2>
             
             <div className="space-y-4">
-              {jobs.map((job) => (
+              {queueJobs.map((job) => (
                 <motion.div
                   key={job.id}
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -292,10 +293,9 @@ const WebScrapingInterface: React.FC = () => {
                       {getStatusIcon(job.status)}
                       <div>
                         <h3 className="font-semibold text-gray-900 capitalize">
-                          {job.category} Scraping
+                          {job.job_type} Job
                         </h3>
                         <p className="text-sm text-gray-600">
-                          {job.urls.length} URLs • {job.results.filter(r => r.success).length} successful
                         </p>
                       </div>
                     </div>
