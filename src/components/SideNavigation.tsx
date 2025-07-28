@@ -64,16 +64,10 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       ]
     },
     {
-      id: 'admin',
-      title: 'ADMIN TOOLS',
+      id: 'tools',
+      title: 'DATA TOOLS',
       items: [
-        { id: 'data-parser', label: 'DATA PARSER', icon: '📊', action: () => onNavigate('data-parser') },
-        { id: 'bulk-import', label: 'BULK IMPORT', icon: '📥', action: () => onNavigate('bulk-import') },
-        { id: 'reviews', label: 'REVIEWS', icon: '⭐', action: () => onNavigate('reviews') },
-        { id: 'images', label: 'IMAGES', icon: '🖼️', action: () => onNavigate('images') },
-        { id: 'enhancement', label: 'ENHANCEMENT', icon: '✨', action: () => onNavigate('enhancement') },
-        { id: 'database', label: 'DATABASE', icon: '🗄️', action: () => onNavigate('database') },
-        { id: 'osm-data', label: 'OSM DATA', icon: '🗺️', action: () => onNavigate('osm-data') }
+        { id: 'web-scraping', label: 'WEB SCRAPING', icon: Globe, action: () => onNavigate('web-scraping') }
       ]
     },
     {

@@ -6,13 +6,7 @@ import CategoryGrid from './components/CategoryGrid';
 import ListingGrid from './components/ListingGrid';
 import VenueDetailPage from './components/VenueDetailPage';
 import SideNavigation from './components/SideNavigation';
-import DataParserInterface from './components/DataParserInterface';
-import BulkImportSystem from './components/BulkImportSystem';
-import ReviewCollectionSystem from './components/ReviewCollectionSystem';
-import ImageManagementInterface from './components/ImageManagementInterface';
-import ContentEnhancementInterface from './components/ContentEnhancementInterface';
-import DatabaseManagementPanel from './components/DatabaseManagementPanel';
-import OSMDataCollector from './components/OSMDataCollector';
+import WebScrapingInterface from './components/WebScrapingInterface';
 import { dummyListings } from './data/dummyData';
 import { categories } from './data/categories';
 import { SearchFilters, Listing } from './types';
@@ -23,6 +17,7 @@ function App() {
   const [selectedVenue, setSelectedVenue] = useState<Listing | null>(null);
   const [sideNavOpen, setSideNavOpen] = useState(false);
   const [currentSection, setCurrentSection] = useState('home');
+  const [showWebScraping, setShowWebScraping] = useState(false);
   const [showDataParser, setShowDataParser] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
   const [showReviewCollection, setShowReviewCollection] = useState(false);
@@ -69,6 +64,9 @@ function App() {
       case 'places-to-visit':
       case 'things-to-do':
         handleCategorySelect(section);
+        break;
+      case 'web-scraping':
+        setShowWebScraping(true);
         break;
       case 'data-parser':
         setShowDataParser(true);
@@ -125,40 +123,11 @@ function App() {
     return <VenueDetailPage venue={selectedVenue} onBack={handleBackFromVenue} />;
   }
 
-  // Show data parser interface
-  if (showDataParser) {
-    return <DataParserInterface />;
+  // Show web scraping interface
+  if (showWebScraping) {
+    return <WebScrapingInterface />;
   }
 
-  // Show bulk import system
-  if (showBulkImport) {
-    return <BulkImportSystem />;
-  }
-
-  // Show review collection system
-  if (showReviewCollection) {
-    return <ReviewCollectionSystem />;
-  }
-
-  // Show image management interface
-  if (showImageManagement) {
-    return <ImageManagementInterface />;
-  }
-
-  // Show content enhancement interface
-  if (showContentEnhancement) {
-    return <ContentEnhancementInterface />;
-  }
-
-  // Show database management panel
-  if (showDatabasePanel) {
-    return <DatabaseManagementPanel />;
-  }
-
-  // Show OSM data collector
-  if (showOSMCollector) {
-    return <OSMDataCollector />;
-  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0c1824] to-[#16283e]">
       {/* Side Navigation */}
