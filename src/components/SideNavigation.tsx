@@ -71,7 +71,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         { id: 'bulk-import', label: 'BULK IMPORT', icon: '📥', action: () => onNavigate('bulk-import') },
         { id: 'reviews', label: 'REVIEWS', icon: '⭐', action: () => onNavigate('reviews') },
         { id: 'images', label: 'IMAGES', icon: '🖼️', action: () => onNavigate('images') },
-        { id: 'enhancement', label: 'ENHANCEMENT', icon: '✨', action: () => onNavigate('enhancement') }
+        { id: 'enhancement', label: 'ENHANCEMENT', icon: '✨', action: () => onNavigate('enhancement') },
         { id: 'database', label: 'DATABASE', icon: '🗄️', action: () => onNavigate('database') }
       ]
     },
