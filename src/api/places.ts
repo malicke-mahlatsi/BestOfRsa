@@ -71,12 +71,52 @@ export async function getPlacesByLocation(
 
 // Bulk insert places using the database function
 export async function bulkInsertPlaces(placesData: Partial<Place>[]): Promise<BulkInsertResult> {
-  const { data, error } = await supabase.rpc('bulk_insert_places', {
-    places_data: placesData
-  });
+  let inserted_count = 0;
+  let duplicate_count = 0;
+  let error_count = 0;
+  const inserted_ids: string[] = [];
 
-  if (error) throw error;
-  return data[0] as BulkInsertResult;
+  for (const place of placesData) {
+    try {
+      // Check for duplicates first
+      const { data: existing } = await supabase
+        .from('places')
+        .select('id')
+        .eq('name', place.name || '')
+        .eq('address', place.address || '')
+        .single();
+
+      if (existing) {
+        duplicate_count++;
+        continue;
+      }
+
+      // Insert new place
+      const { data, error } = await supabase
+        .from('places')
+        .insert(place)
+        .select('id')
+        .single();
+
+      if (error) {
+        error_count++;
+        console.error('Insert error:', error);
+      } else {
+        inserted_count++;
+        inserted_ids.push(data.id);
+      }
+    } catch (err) {
+      error_count++;
+      console.error('Bulk insert error:', err);
+    }
+  }
+
+  return {
+    inserted_count,
+    duplicate_count,
+    error_count,
+    inserted_ids
+  };
 }
 
 // Calculate quality score for a place
