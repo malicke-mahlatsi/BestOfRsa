@@ -1,8 +1,29 @@
-import { EventEmitter } from 'events';
 import PQueue from 'p-queue';
 import { supabase } from '../lib/supabase';
 import { ScrapingJob } from '../types/database';
 import { v4 as uuidv4 } from 'uuid';
+
+// Browser-compatible EventEmitter implementation
+class SimpleEventEmitter {
+  private events: { [key: string]: Function[] } = {};
+
+  on(event: string, listener: Function): void {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  emit(event: string, ...args: any[]): void {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+
+  removeAllListeners(): void {
+    this.events = {};
+  }
+}
 
 export interface QueueJob {
   id: string;
@@ -23,7 +44,7 @@ export interface QueueOptions {
   throwOnTimeout: boolean;
 }
 
-export class QueueManager extends EventEmitter {
+export class QueueManager extends SimpleEventEmitter {
   private queue: PQueue;
   private activeJobs: Map<string, QueueJob> = new Map();
   private processors: Map<string, (job: QueueJob) => Promise<any>> = new Map();
