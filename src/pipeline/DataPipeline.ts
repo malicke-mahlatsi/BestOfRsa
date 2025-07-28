@@ -322,32 +322,9 @@ export class DataPipeline {
       'attraction': 'tourist_attraction',
       'activity': 'activity',
       'cafe': 'restaurant',
-      'lodge': 'hotel',
-      'museum': 'tourist_attraction',
-      'tour': 'activity'
-    };
-
-    const normalized = String(category).toLowerCase();
-    return categoryMap[normalized] || 'general';
-  }
-
-  private normalizeImages(images: any): string[] | undefined {
-    if (!images) return undefined;
-    
-    const normalized: string[] = [];
-    const imageArray = Array.isArray(images) ? images : [images];
-    
-    for (const image of imageArray) {
-      if (typeof image === 'string' && image.trim()) {
-        try {
-          // Validate URL
-          new URL(image);
-          normalized.push(image.trim());
-        } catch {
-          // Skip invalid URLs
-        }
-      }
     }
+    // Location-based duplicate checking would require custom RPC function
+    // Skipping for now to avoid database function dependencies
     
     return normalized.length > 0 ? normalized : undefined;
   }
