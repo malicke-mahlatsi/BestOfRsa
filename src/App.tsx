@@ -7,6 +7,7 @@ import ListingGrid from './components/ListingGrid';
 import VenueDetailPage from './components/VenueDetailPage';
 import SideNavigation from './components/SideNavigation';
 import WebScrapingInterface from './components/WebScrapingInterface';
+import DataPipelineInterface from './components/DataPipelineInterface';
 import { dummyListings } from './data/dummyData';
 import { categories } from './data/categories';
 import { SearchFilters, Listing } from './types';
@@ -25,6 +26,7 @@ function App() {
   const [showContentEnhancement, setShowContentEnhancement] = useState(false);
   const [showDatabasePanel, setShowDatabasePanel] = useState(false);
   const [showOSMCollector, setShowOSMCollector] = useState(false);
+  const [showDataPipeline, setShowDataPipeline] = useState(false);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -89,6 +91,9 @@ function App() {
       case 'osm-data':
         setShowOSMCollector(true);
         break;
+      case 'data-pipeline':
+        setShowDataPipeline(true);
+        break;
       default:
         // Handle other sections like locations, profile, etc.
         break;
@@ -126,6 +131,11 @@ function App() {
   // Show web scraping interface
   if (showWebScraping) {
     return <WebScrapingInterface />;
+  }
+
+  // Show data pipeline interface
+  if (showDataPipeline) {
+    return <DataPipelineInterface />;
   }
 
   return (
