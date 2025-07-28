@@ -98,8 +98,8 @@ export class DataPipeline {
       concurrency?: number;
     } = {}
   ): Promise<PipelineResult[]> {
-    const concurrency = options.concurrency || 5;
     const results: PipelineResult[] = [];
+    const concurrency = options.concurrency || 5;
     
     // Process in chunks to avoid overwhelming the system
     for (let i = 0; i < items.length; i += concurrency) {
@@ -118,10 +118,16 @@ export class DataPipeline {
     return {
       name: this.cleanString(data.name),
       address: this.cleanString(data.address),
-
+      rating: this.parseRating(data.rating),
       category: data.category || 'general',
       location: this.parseLocation(data),
       photos: this.normalizeImages(data.images || data.photos)
+    };
+  }
+
+  // Check for duplicates
+  private async checkDuplicate(place: Place): Promise<{ isDuplicate: boolean; duplicateId?: string; similarity?: number }> {
+    try {
       // First, check exact matches by name
       const { data: exactMatches } = await supabase
         .from('places')
@@ -270,6 +276,12 @@ export class DataPipeline {
     return null;
   }
 
+  private parseCoordinate(coord: any): number | undefined {
+    if (!coord) return undefined;
+    const parsed = parseFloat(coord);
+    return !isNaN(parsed) ? parsed : undefined;
+  }
+
   // Helper methods for data normalization
   private cleanString(str: any): string | undefined {
     if (!str) return undefined;
@@ -322,9 +334,32 @@ export class DataPipeline {
       'attraction': 'tourist_attraction',
       'activity': 'activity',
       'cafe': 'restaurant',
+      'lodge': 'hotel',
+      'museum': 'tourist_attraction',
+      'tour': 'activity'
+    };
+
+    const normalized = String(category).toLowerCase();
+    return categoryMap[normalized] || 'general';
+  }
+
+  private normalizeImages(images: any): string[] | undefined {
+    if (!images) return undefined;
+    
+    const normalized: string[] = [];
+    const imageArray = Array.isArray(images) ? images : [images];
+    
+    for (const image of imageArray) {
+      if (typeof image === 'string' && image.trim()) {
+        try {
+          // Validate URL
+          new URL(image);
+          normalized.push(image.trim());
+        } catch {
+          // Skip invalid URLs
+        }
+      }
     }
-    // Location-based duplicate checking would require custom RPC function
-    // Skipping for now to avoid database function dependencies
     
     return normalized.length > 0 ? normalized : undefined;
   }
