@@ -15,7 +15,6 @@ import {
   Database
 } from 'lucide-react';
 import { queueManager } from '../queue';
-import { ScraperConfig } from '../scrapers/types';
 import { getScrapingJobs } from '../api/places';
 import { ScrapingJob } from '../types/database';
 
@@ -35,13 +34,14 @@ const WebScrapingInterface: React.FC = () => {
   const [queueJobs, setQueueJobs] = useState<ScrapingJob[]>([]);
   const [newJobUrls, setNewJobUrls] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('restaurants');
-  const [scraperConfig, setScraperConfig] = useState<ScraperConfig>({
+  const [scraperConfig, setScraperConfig] = useState({
     requestsPerSecond: 1,
     maxRetries: 3,
     timeout: 30000
   });
   const [isRunning, setIsRunning] = useState(false);
 
+  React.useEffect(() => {
   useEffect(() => {
     loadQueueJobs();
     
