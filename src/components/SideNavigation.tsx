@@ -73,6 +73,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         { id: 'images', label: 'IMAGES', icon: '🖼️', action: () => onNavigate('images') },
         { id: 'enhancement', label: 'ENHANCEMENT', icon: '✨', action: () => onNavigate('enhancement') },
         { id: 'database', label: 'DATABASE', icon: '🗄️', action: () => onNavigate('database') }
+        { id: 'osm-data', label: 'OSM DATA', icon: '🗺️', action: () => onNavigate('osm-data') }
       ]
     },
     {

@@ -12,6 +12,7 @@ import ReviewCollectionSystem from './components/ReviewCollectionSystem';
 import ImageManagementInterface from './components/ImageManagementInterface';
 import ContentEnhancementInterface from './components/ContentEnhancementInterface';
 import DatabaseManagementPanel from './components/DatabaseManagementPanel';
+import OSMDataCollector from './components/OSMDataCollector';
 import { dummyListings } from './data/dummyData';
 import { categories } from './data/categories';
 import { SearchFilters, Listing } from './types';
@@ -28,6 +29,7 @@ function App() {
   const [showImageManagement, setShowImageManagement] = useState(false);
   const [showContentEnhancement, setShowContentEnhancement] = useState(false);
   const [showDatabasePanel, setShowDatabasePanel] = useState(false);
+  const [showOSMCollector, setShowOSMCollector] = useState(false);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -85,6 +87,9 @@ function App() {
         break;
       case 'database':
         setShowDatabasePanel(true);
+        break;
+      case 'osm-data':
+        setShowOSMCollector(true);
         break;
       default:
         // Handle other sections like locations, profile, etc.
@@ -148,6 +153,11 @@ function App() {
   // Show database management panel
   if (showDatabasePanel) {
     return <DatabaseManagementPanel />;
+  }
+
+  // Show OSM data collector
+  if (showOSMCollector) {
+    return <OSMDataCollector />;
   }
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0c1824] to-[#16283e]">
