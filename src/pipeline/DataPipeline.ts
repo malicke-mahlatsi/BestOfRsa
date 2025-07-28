@@ -118,20 +118,10 @@ export class DataPipeline {
     return {
       name: this.cleanString(data.name),
       address: this.cleanString(data.address),
-      rating: this.parseRating(data.rating),
-      location: this.normalizeLocation(data),
-      category: this.normalizeCategory(data.category),
-      photos: this.normalizeImages(data.images)
-    } as Place;
-  }
 
-  // Check for duplicates in database
-  private async checkDuplicate(place: Place): Promise<{
-    isDuplicate: boolean;
-    duplicateId?: string;
-    similarity?: number;
-  }> {
-    try {
+      category: data.category || 'general',
+      location: this.parseLocation(data),
+      photos: this.normalizeImages(data.images || data.photos)
       // First, check exact matches by name
       const { data: exactMatches } = await supabase
         .from('places')
@@ -266,6 +256,18 @@ export class DataPipeline {
       console.error('Enhancement error:', error);
       return null;
     }
+  }
+
+  // Parse location data
+  private parseLocation(data: any): any {
+    const lat = this.parseCoordinate(data.latitude || data.lat);
+    const lng = this.parseCoordinate(data.longitude || data.lng || data.lon);
+    
+    if (lat !== undefined && lng !== undefined) {
+      return { lat, lng };
+    }
+    
+    return null;
   }
 
   // Helper methods for data normalization
