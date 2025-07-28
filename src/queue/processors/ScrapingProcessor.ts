@@ -30,7 +30,6 @@ export class ScrapingProcessor {
       address: result.data.address,
       phone: result.data.phone,
       website: result.data.website,
-      description: result.data.description,
       category: this.getCategoryName(category),
       rating: result.data.rating || 0,
       location: result.data.coordinates ? {
@@ -38,11 +37,6 @@ export class ScrapingProcessor {
         lng: result.data.coordinates.lng
       } : null,
       photos: result.data.images || [],
-      source_type: 'scrape',
-      source_url: url,
-      scraped_at: new Date().toISOString(),
-      is_active: true,
-      is_verified: false
     };
 
     // Save to database

@@ -183,19 +183,12 @@ export class OSMDataService {
         return {
           name: tags.name,
           address: this.buildAddressFromTags(tags),
-          latitude: node.lat,
-          longitude: node.lon,
-          phone: this.normalizePhone(tags.phone || tags['contact:phone']),
-          website: tags.website || tags['contact:website'],
-          email: tags.email || tags['contact:email'],
-          description: tags.description,
+          location: {
+            lat: node.lat,
+            lng: node.lon
+          },
+            lng: parseFloat(result.lon)
           source_type: 'osm',
-          source_url: `https://www.openstreetmap.org/node/${node.id}`,
-          features: this.extractFeaturesFromTags(tags),
-          opening_hours: this.parseOpeningHours(tags.opening_hours),
-          category: this.getCategoryName(category),
-          amenities: this.extractAmenities(tags),
-          price_range: this.inferPriceRange(tags)
         } as Place;
       });
   }
