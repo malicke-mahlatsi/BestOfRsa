@@ -150,12 +150,12 @@ export class QueueManager extends SimpleEventEmitter {
         }, delay);
 
         await this.updateJobStatus(job.id, 'pending', { 
-          error: (error as Error).message,
+          error_message: (error as Error).message,
           attempts: job.attempts 
         });
       } else {
         // Max attempts reached
-        await this.updateJobStatus(job.id, 'failed', { error: (error as Error).message });
+        await this.updateJobStatus(job.id, 'failed', { error_message: (error as Error).message });
         
         this.activeJobs.delete(job.id);
         this.emit('job:failed', { job, error });
